@@ -13,6 +13,8 @@ import javax.validation.Valid;
 import java.util.HashMap;
 import java.util.Map;
 
+import static com.patrick.stripecard.controller.ApiThread.getObject;
+
 @RestController
 public class Api {
     @Autowired
@@ -77,15 +79,7 @@ public class Api {
 
         try {
 
-            loanRepository.save(n);
-
-           /* HashMap<String, String> newmap = new HashMap<String, String>();
-            newmap.put("nw","wew");*/
-            data.clear();
-            data.put("status", "success");
-            data.put("message", "loan applied successfully");
-
-            return data;
+            return getObject(data, n, loanRepository);
 
         } catch (Exception e) {
             e.printStackTrace();

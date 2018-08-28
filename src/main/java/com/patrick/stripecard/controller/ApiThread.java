@@ -3,12 +3,11 @@ package com.patrick.stripecard.controller;
 import com.patrick.stripecard.model.Loan;
 import com.patrick.stripecard.repository.LoanRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Async;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
@@ -67,6 +66,15 @@ public class ApiThread {
 
     }
 
+    /*get all records */
+    @Async("stripeExecutor")
+    @RequestMapping(value = "getData", method = RequestMethod.GET)
+    public List<Loan> getPay(@Param(value =  "amount")String amount) {
+
+
+        return loanRepository.findByAmount(amount);
+    }
+
 
     @PostMapping(value = "/test-thread1") // Map ONLY GET Requests
     public @ResponseBody Object test(@RequestBody Map<String, String> data1) {
@@ -91,13 +99,7 @@ public class ApiThread {
 
         try {
 
-            loanRepository.save(n);
-
-            data1.clear();
-            data1.put("status", "success");
-            data1.put("message", "loan applied successfully");
-
-            return data1;
+            return getObject(data1, n, loanRepository);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -109,6 +111,16 @@ public class ApiThread {
             return data1;
 
         }
+    }
 
+    /*method to save data*/
+     static Object getObject(@RequestBody Map<String, String> data1, Loan n, LoanRepository loanRepository) {
+        loanRepository.save(n);
+
+        data1.clear();
+        data1.put("status", "success");
+        data1.put("message", "loan applied successfully");
+
+        return data1;
     }
 }

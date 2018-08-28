@@ -4,6 +4,7 @@ import org.springframework.beans.factory.annotation.Required;
 
 import javax.persistence.*;
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 @Entity
 @Table
@@ -54,6 +55,11 @@ public class Loan {
     @NotNull
     private String fname;
 
+    @Size(max = 15, min = 10)
+    @Column(name = "phone_number", unique = true)
+    @NotNull
+    private String phone_number;
+
     public String getInterest() {
         return interest;
     }
@@ -65,4 +71,12 @@ public class Loan {
     @Column
     @NotNull
    private String interest;
+
+    public String getPhone_number() {
+        return phone_number;
+    }
+
+    public void setPhone_number(String phone_number) {
+        this.phone_number = phone_number;
+    }
 }
