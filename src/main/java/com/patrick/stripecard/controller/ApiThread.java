@@ -76,6 +76,8 @@ public class ApiThread {
     @RequestMapping(value = "getData", method = RequestMethod.GET)
     public  @ResponseBody Object getPay(@Param(value =  "amount")@Valid String amount) {
 
+
+        /*has map to prepare an object*/
         Map<String, String> d=new HashMap<>();
 
         if(amount==null){
@@ -86,8 +88,6 @@ public class ApiThread {
 
             return d;
         }
-
-
 
         return loanRepository.findByAmount(amount);
     }
