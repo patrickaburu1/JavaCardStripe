@@ -2,13 +2,18 @@ package com.patrick.stripecard.controller;
 
 import com.patrick.stripecard.model.Loan;
 import com.patrick.stripecard.repository.LoanRepository;
+import javafx.beans.binding.MapBinding;
+import javafx.collections.ObservableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
+import javax.validation.Valid;
+import java.util.Collection;
+import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -69,7 +74,19 @@ public class ApiThread {
     /*get all records */
     @Async("stripeExecutor")
     @RequestMapping(value = "getData", method = RequestMethod.GET)
-    public List<Loan> getPay(@Param(value =  "amount")String amount) {
+    public  @ResponseBody Object getPay(@Param(value =  "amount")@Valid String amount) {
+
+        Map<String, String> d=new HashMap<>();
+
+        if(amount==null){
+         d.put("status", "error");
+         d.put("message", "amount is required");
+
+            logger.info("\n" + "\n" + "********* static value set  ******* " + "\n");
+
+            return d;
+        }
+
 
 
         return loanRepository.findByAmount(amount);

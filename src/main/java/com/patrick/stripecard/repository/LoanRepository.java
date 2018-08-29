@@ -11,7 +11,7 @@ import java.util.List;
 public interface LoanRepository extends JpaRepository<Loan, Integer> {
 
     /*search by amount*/
-    @Query(value = "SELECT * FROM loan l WHERE l.amount= :amount", nativeQuery = true)
+    @Query(value = "SELECT id,amount FROM loan l WHERE l.amount= :amount", nativeQuery = true)
     List<Loan> findAmount(@Param("amount") Integer amount);
 
     List<Loan> findByAmount(String amount);
