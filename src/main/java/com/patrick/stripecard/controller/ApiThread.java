@@ -105,6 +105,7 @@ public class ApiThread {
         /*return data with response code*/
         try {
 
+            logger.info("array size "+loanRepository.test(amount).size());
             return ResponseEntity.status(HttpStatus.OK).body(loanRepository.test(amount));
 
 

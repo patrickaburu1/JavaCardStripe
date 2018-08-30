@@ -19,7 +19,7 @@ public interface LoanRepository extends JpaRepository<Loan, Integer> {
     Optional<Loan> findAmount(@Param("amount") String amount);
 
     @Transactional
-    @Query(value = "select l.id, l.amount from loan l where l.amount=?1 ", nativeQuery = true)
+    @Query(value = "select * from loan l where l.amount=?1 ", nativeQuery = true)
     List<Loan> test(String amount);
 
     List<Loan> findByAmount(String amount);
