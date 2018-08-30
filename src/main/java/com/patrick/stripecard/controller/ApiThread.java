@@ -2,18 +2,19 @@ package com.patrick.stripecard.controller;
 
 import com.patrick.stripecard.model.Loan;
 import com.patrick.stripecard.repository.LoanRepository;
-import javafx.beans.binding.MapBinding;
-import javafx.collections.ObservableMap;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.repository.query.Param;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.Collection;
+import javax.xml.ws.Response;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.logging.Logger;
 
@@ -24,6 +25,17 @@ public class ApiThread {
     LoanRepository loanRepository;
 
     private Logger logger = Logger.getLogger(ApiThread.class.getSimpleName());
+
+    /*method to save data*/
+    static Object getObject(@RequestBody Map<String, String> data1, Loan n, LoanRepository loanRepository) {
+        loanRepository.save(n);
+
+        data1.clear();
+        data1.put("status", "success");
+        data1.put("message", "loan applied successfully");
+
+        return data1;
+    }
 
     @Async("stripeExecutor")
     @PostMapping(value = "/test-thread") // Map ONLY GET Requests
@@ -39,7 +51,7 @@ public class ApiThread {
 
             return CompletableFuture.completedFuture(data);
         }
-        logger.info("\n" + "\n" + "*********  data  ******* " +data+ "\n");
+        logger.info("\n" + "\n" + "*********  data  ******* " + data + "\n");
 
         Loan n = new Loan();
         n.setAmount(data.get("amount"));
@@ -71,30 +83,46 @@ public class ApiThread {
 
     }
 
-    /*get all records */
+    /*get all records with thread executor */
     @Async("stripeExecutor")
     @RequestMapping(value = "getData", method = RequestMethod.GET)
-    public  @ResponseBody Object getPay(@Param(value =  "amount")@Valid String amount) {
-
-
+    public @ResponseBody
+    Object getPay(@Param(value = "amount") @Valid String amount) {
         /*has map to prepare an object*/
-        Map<String, String> d=new HashMap<>();
+        Map<String, String> d = new HashMap<>();
 
-        if(amount==null){
-         d.put("status", "error");
-         d.put("message", "amount is required");
+        /*check if amount value have been passed */
+        if (amount == null || amount.equals("")) {
+            d.put("status", "error");
+            d.put("message", "amount is required");
 
             logger.info("\n" + "\n" + "********* static value set  ******* " + "\n");
 
-            return d;
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(d);
         }
 
-        return loanRepository.findByAmount(amount);
+
+        /*return data with response code*/
+        try {
+
+            return ResponseEntity.status(HttpStatus.OK).body(loanRepository.test(amount));
+
+
+        }catch (Exception e){
+
+            d.put("status", "failed");
+            d.put("message", "something went wrong");
+
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(d);
+
+        }
+
+
     }
 
-
     @PostMapping(value = "/test-thread1") // Map ONLY GET Requests
-    public @ResponseBody Object test(@RequestBody Map<String, String> data1) {
+    public @ResponseBody
+    Object test(@RequestBody Map<String, String> data1) {
 
         if (data1.isEmpty()) {
             data1.clear();
@@ -105,7 +133,7 @@ public class ApiThread {
 
             return data1;
         }
-        logger.info("\n" + "\n" + "*********  data  ******* " +data1+ "\n");
+        logger.info("\n" + "\n" + "*********  data  ******* " + data1 + "\n");
 
         Loan n = new Loan();
         n.setAmount(data1.get("amount"));
@@ -128,16 +156,5 @@ public class ApiThread {
             return data1;
 
         }
-    }
-
-    /*method to save data*/
-     static Object getObject(@RequestBody Map<String, String> data1, Loan n, LoanRepository loanRepository) {
-        loanRepository.save(n);
-
-        data1.clear();
-        data1.put("status", "success");
-        data1.put("message", "loan applied successfully");
-
-        return data1;
     }
 }
